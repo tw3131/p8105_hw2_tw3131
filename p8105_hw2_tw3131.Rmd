@@ -5,7 +5,129 @@ author: "Tianqing Wang"
 output: github_document
 ---
 
+```{r}
+library(tidyverse)
+```
+
 # Problem 1
+
+```{r}
+subway_df = read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv",
+col_types = cols(
+  Route8 = col_character(),
+  Route9 = col_character(),
+  Route10 = col_character(),
+  Route11 = col_character()
+)
+)
+  
+subway_df = janitor::clean_names (subway_df)
+names(subway_df)
+head(subway_df)
+```
+
+
+```{r}
+subway_df = subway_df |>
+  select(
+    line,
+    station_name,
+    station_latitude,
+    station_longitude,
+    starts_with("route"),
+    entry,
+    vending,
+    entrance_type,
+    ada
+  )
+dim(subway_df)
+names(subway_df)
+```
+
+
+```{r}
+subway_df = subway_df |>
+  mutate(
+    entry = case_match(
+    entry,
+    "YES" ~ TRUE,
+    "NO" ~ FALSE
+  )
+  )
+  
+subway_df |>
+  select(entry) |>
+  head()
+```
+
+
+### Dataset Description
+The dataset contains information about NYC subway station entrances and exits, including subway lines, station names, station latitude and longitude, routes served, entry permission, vending availability, entrance types, and ADA accessibility.
+
+I cleaned the data by standardizing variable names using janitor::clean_names(), selecting the relevant variables using select(), and converting the entry variable from character ("YES" and "NO") to logical (TRUE and FALSE) using mutate() and case_match().
+
+The resulting dataset contains 1,868 rows and 19 columns.
+
+The data are not fully tidy because route information is spread across multiple columns (route1 to route11) rather than being organized into separate variables for route number and route name.
+
+
+### Distinct Stations
+```{r}
+subway_df |>
+  distinct (line, station_name) |>
+  dim ()
+
+subway_df |>
+  filter (ada == TRUE) |>
+  distinct (line, station_name) |>
+  dim ()
+```
+There are 465 distinct subway stations in the dataset, identified by unique combinations of station name and line. Among these, 84 stations are ADA-compliant.
+
+
+### Vending and Entry
+```{r}
+subway_df |>
+  filter (vending == "NO") |>
+  pull(entry) |>
+  mean()
+```
+Among subway station entrances and exits without vending facilities, approximately 37.7% allow entry.
+
+### Subway Routes
+```{r}
+subway_long_df = subway_df |>
+  pivot_longer(
+    route1 : route11,
+    names_to = "route_number",
+    names_prefix = "route",
+    values_to = "route_name"
+  ) |>
+drop_na(route_name)
+head(subway_long_df)
+
+subway_long_df |>
+  select(station_name, route_number, route_name) |>
+  head()
+```
+
+### Distinct Stations Served by the A Train
+```{r}
+subway_long_df |>
+  filter (route_name =="A") |>
+  distinct (line, station_name) |>
+  dim()
+```
+There are 60 distinct subway stations served by the A train, identified by unique combinations of station name and line.
+
+### ADA-Compliant Stations Served by the A Train
+```{r}
+subway_long_df |>
+  filter(route_name == "A", ada == TRUE) |>
+  distinct(line, station_name) |>
+  dim()
+```
+Among the 60 distinct stations served by the A train, 17 are ADA-compliant.
 
 # Problem 2
 
