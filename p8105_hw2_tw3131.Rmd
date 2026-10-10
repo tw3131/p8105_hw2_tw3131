@@ -460,11 +460,43 @@ amyloid_df = read_csv(
  head(amyloid_df)
 ```
 
-## use reasonable variable names
+## Use reasonable variable names
 ```{r}
 amyloid_df = janitor::clean_names (amyloid_df)
 names(amyloid_df)
 ```
+
+## Reshape amyloid data by using pivot_longer()
+```{r}
+amyloid_df = amyloid_df |>
+  pivot_longer(
+    baseline:time_8,
+    names_to = "visit",
+    values_to = "amyloid_ratio"
+  )
+dim(amyloid_df)
+head(amyloid_df)
+```
+
+## Recode visit as numeric
+```{r}
+amyloid_df = amyloid_df |>
+  mutate(
+    visit=case_match(
+      visit,
+      "baseline"~ 0,
+      "time_2" ~ 2,
+      "time_4" ~ 4,
+      "time_6" ~ 6,
+      "time_8" ~ 8
+    )
+  )
+amyloid_df |>
+  distinct(visit)
+str(amyloid_df)
+```
+
+
 
 
 
