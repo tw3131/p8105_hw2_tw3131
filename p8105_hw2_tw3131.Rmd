@@ -129,6 +129,224 @@ subway_long_df |>
 ```
 Among the 60 distinct stations served by the A train, 17 are ADA-compliant.
 
-# Problem 2
 
-# Problem 3
+
+
+#########################################Problem 2##################################################
+
+
+
+# Problem 2
+```{r}
+library(readxl)
+```
+
+################################## Mr. Trash Wheel ################################################
+
+
+## Import Mr. Trash Wheel data
+```{r}
+mr_trash_df=read_excel(
+  "./data/202610 Trash Wheel Collection Data.xlsx",
+  sheet = "Mr. Trash Wheel"
+)
+names(mr_trash_df)
+head(mr_trash_df)
+tail(mr_trash_df)
+dim(mr_trash_df)
+```
+
+## use reasonable variable names
+```{r}
+mr_trash_df = janitor::clean_names (mr_trash_df)
+names(mr_trash_df)
+```
+
+## Remove unnecessary columns
+```{r}
+mr_trash_df = mr_trash_df |>
+  select(-x15, -x16)
+names(mr_trash_df)
+```
+
+## # Identify rows with missing dumpster IDs
+```{r}
+mr_trash_df |>
+  filter (is.na(dumpster))
+dim(mr_trash_df)
+```
+
+# Omit rows without dumpster-specific data
+```{r}
+filter(mr_trash_df, is.na(dumpster))
+mr_trash_df = mr_trash_df |>
+  drop_na(dumpster)
+dim(mr_trash_df)
+```
+
+## Inspect sports balls before rounding
+```{r}
+mr_trash_df |>
+  select (sports_balls)
+dim(mr_trash_df)
+```
+
+## Round sports balls and convert to integer
+```{r}
+mr_trash_df = mr_trash_df |>
+  mutate(sports_balls=as.integer(round(sports_balls)))
+
+  mr_trash_df |>
+  select (sports_balls)
+dim(mr_trash_df)
+
+```
+
+
+#####################################  Professor Trash Wheel  ######################################
+
+
+## Import Professor Trash Wheel data
+```{r}
+prof_trash_df=read_excel(
+  "./data/202610 Trash Wheel Collection Data.xlsx",
+  sheet = "Professor Trash Wheel"
+)
+names(prof_trash_df)
+head(prof_trash_df)
+tail(prof_trash_df)
+dim(prof_trash_df)
+```
+
+# Import Professor Trash Wheel data (-diva in column 135)
+```{r}
+prof_trash_df = read_excel(
+  "./data/202610 Trash Wheel Collection Data.xlsx",
+  sheet = "Professor Trash Wheel",
+  na = c("", "dive")
+)
+```
+
+
+## use reasonable variable names
+```{r}
+prof_trash_df = janitor::clean_names (prof_trash_df)
+names(prof_trash_df)
+```
+
+# Check dumpster 135 transform to NA
+```{r}
+prof_trash_df |>
+  filter(dumpster == 135) |>
+  select(dumpster, plastic_bottles)
+```
+
+## Identify rows with missing dumpster IDs
+```{r}
+prof_trash_df |>
+  filter (is.na(dumpster))
+dim(prof_trash_df)
+```
+
+## Omit rows without dumpster-specific data
+```{r}
+filter(prof_trash_df, is.na(dumpster))
+prof_trash_df = prof_trash_df |>
+  drop_na(dumpster)
+dim(prof_trash_df)
+```
+
+########################  Gwynnda the Good Wheel of the W  #########################################
+
+## Import Gwynnda the Good Wheel of the W
+```{r}
+gwynnda_df=read_excel(
+  "./data/202610 Trash Wheel Collection Data.xlsx",
+  sheet = "Gwynnda the Good Wheel of the W"
+)
+names(gwynnda_df)
+head(gwynnda_df)
+tail(gwynnda_df)
+dim(gwynnda_df)
+```
+
+## use reasonable variable names
+```{r}
+gwynnda_df = janitor::clean_names (gwynnda_df)
+names(gwynnda_df)
+```
+
+## Identify rows with missing dumpster IDs
+```{r}
+gwynnda_df |>
+  filter (is.na(dumpster))
+dim(gwynnda_df)
+```
+
+## Omit rows without dumpster-specific data
+```{r}
+filter(gwynnda_df, is.na(dumpster))
+gwynnda_df = gwynnda_df |>
+  drop_na(dumpster)
+dim(gwynnda_df)
+```
+
+## Standardize year data type before merging in "mr_trash_df" data
+```{r}
+mr_trash_df = mr_trash_df |>
+  mutate(year = as.integer(year))
+```
+
+############################################  Combining  ###########################################
+
+## Add Trash Wheel identifiers
+```{r}
+mr_trash_df=mr_trash_df |>
+  mutate(trash_wheel="Mr")
+prof_trash_df=prof_trash_df |>
+  mutate(trash_wheel="Prof")
+gwynnda_df=gwynnda_df |>
+  mutate(trash_wheel="gwynnda")
+```
+
+## Combine the three Trash Wheel datasets
+```{r}
+trash_wheel_df=bind_rows(
+  mr_trash_df,
+  prof_trash_df,
+  gwynnda_df
+)
+dim(trash_wheel_df)
+head(trash_wheel_df)
+```
+
+##Total weight collected by Professor Trash Wheel
+```{r}
+prof_total_weight = trash_wheel_df |>
+  filter(trash_wheel == "Prof") |>
+  pull(weight_tons) |>
+  sum()
+```
+
+## Total number of cigarette butts collected by Gwynnda in June of 2022
+```{r}
+gwynnda_june_butts = trash_wheel_df |>
+  filter(
+    trash_wheel == "gwynnda", 
+    year == 2022, 
+    month =="June") |>
+  pull(cigarette_butts) |>
+  sum()
+```
+
+## Trash Wheel Data Summary
+The combined Trash Wheel dataset contains `r dim(trash_wheel_df)[1]` observations and `r dim(trash_wheel_df)[2]` variables, including data from Mr. Trash Wheel, Professor Trash Wheel, and Gwynnda. Each observation represents a dumpster collection record. Key variables include the Trash Wheel identifier, collection date, weight of trash in tons, volume in cubic yards, and counts of different types of trash, such as plastic bottles and cigarette butts.
+
+The data were cleaned by standardizing variable names, removing non-dumpster-specific summary rows, converting variable types where necessary, and combining the three datasets. Based on the available data, Professor Trash Wheel collected a total of `r prof_total_weight` tons of trash, while Gwynnda collected `r gwynnda_june_butts` cigarette butts in June 2022.
+
+
+
+
+
+
+
