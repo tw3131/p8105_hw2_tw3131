@@ -392,6 +392,26 @@ dim(baseline_df)
 baseline_df = baseline_df |>
 filter(is.na(age_at_onset) | age_at_onset > current_age)
   dim(baseline_df)
+  str(baseline_df)
+```
+
+## Recode the variables：apoe4 and sex
+```{r}
+baseline_df = baseline_df |>
+  mutate(
+    sex=case_match(
+      sex,
+      1 ~ "Male",
+      0 ~ "Female"
+    )
+    ,
+    apoe4=case_match(
+      apoe4,
+      1 ~ "APOE4 carrier", 
+      0 ~ "APOE4 non-carrier"
+    )
+  )
+str(baseline_df)
 ```
 
 
