@@ -132,7 +132,7 @@ Among the 60 distinct stations served by the A train, 17 are ADA-compliant.
 
 
 
-#########################################Problem 2##################################################
+#######################################  Problem 2  ################################################
 
 
 
@@ -343,6 +343,67 @@ gwynnda_june_butts = trash_wheel_df |>
 The combined Trash Wheel dataset contains `r dim(trash_wheel_df)[1]` observations and `r dim(trash_wheel_df)[2]` variables, including data from Mr. Trash Wheel, Professor Trash Wheel, and Gwynnda. Each observation represents a dumpster collection record. Key variables include the Trash Wheel identifier, collection date, weight of trash in tons, volume in cubic yards, and counts of different types of trash, such as plastic bottles and cigarette butts.
 
 The data were cleaned by standardizing variable names, removing non-dumpster-specific summary rows, converting variable types where necessary, and combining the three datasets. Based on the available data, Professor Trash Wheel collected a total of `r prof_total_weight` tons of trash, while Gwynnda collected `r gwynnda_june_butts` cigarette butts in June 2022.
+
+
+#######################################  Problem 3  ################################################
+
+Import, clean, and tidy the dataset of baseline demographics. Ensure that sex and APOE4 carrier status are appropriate encoded (i.e. not numeric), and remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). 
+
+## Import and check the baseline data
+```{r}
+baseline_df = read_csv("./data/MCI_baseline.csv")
+ names(baseline_df)
+ str(baseline_df)
+ dim(baseline_df)
+ head(baseline_df)
+ tail(baseline_df)
+```
+
+## Re-import the baseline dataset
+```{r}
+baseline_df = read_csv(
+  "./data/MCI_baseline.csv",
+  skip = 1,
+  na=c ("",".")
+)
+   names(baseline_df)
+ str(baseline_df)
+ dim(baseline_df)
+ head(baseline_df)
+  
+```
+
+## Use reasonable variable names
+```{r}
+baseline_df = janitor::clean_names (baseline_df)
+names(baseline_df)
+head(baseline_df)
+```
+
+## Identify rows with missing age_at_onset
+```{r}
+baseline_df |>
+  filter (is.na(age_at_onset)) 
+dim(baseline_df)
+```
+
+## Remove participants without MCI at baseline
+```{r}
+baseline_df = baseline_df |>
+filter(is.na(age_at_onset) | age_at_onset > current_age)
+  dim(baseline_df)
+```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
