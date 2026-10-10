@@ -414,13 +414,26 @@ baseline_df = baseline_df |>
 str(baseline_df)
 ```
 
+##Count participants who developed MCI
+```{r}
+baseline_df |>
+  filter(!is.na(age_at_onset)) |>
+  dim()
+```
+A total of 483 participants were included in the original baseline dataset. After excluding 4 participants who had MCI at baseline, 479 participants remained in the analysis. Among these participants, 93 developed MCI during the follow-up period.
+
+## Mean baseline age
+```{r}
+mean(baseline_df$current_age, na.rm = TRUE)
+```
 
 
-
-
-
-
-
+## Proportion of Female APOE4 carriers
+```{r}
+baseline_df |>
+  filter(sex== "Female") |>
+summarize(proportion = mean(apoe4=="APOE4 carrier"))
+```
 
 
 
