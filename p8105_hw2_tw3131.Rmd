@@ -370,7 +370,6 @@ baseline_df = read_csv(
  str(baseline_df)
  dim(baseline_df)
  head(baseline_df)
-  
 ```
 
 ## Use reasonable variable names
@@ -414,6 +413,9 @@ baseline_df = baseline_df |>
 str(baseline_df)
 ```
 
+##Discuss important steps in the import process and relevant features of the dataset.
+The baseline dataset initially contained 483 participants and 6 variables. During data import, the first row containing variable descriptions was skipped, and periods representing missing values were converted to NA. Variable names were standardized, and sex and APOE4 carrier status were recoded as categorical variables.
+
 ##Count participants who developed MCI
 ```{r}
 baseline_df |>
@@ -426,7 +428,7 @@ A total of 483 participants were included in the original baseline dataset. Afte
 ```{r}
 mean(baseline_df$current_age, na.rm = TRUE)
 ```
-
+The average baseline age is 65 years old.
 
 ## Proportion of Female APOE4 carriers
 ```{r}
@@ -435,9 +437,34 @@ baseline_df |>
 summarize(proportion = mean(apoe4=="APOE4 carrier"))
 ```
 
+##Import and check amyloid data
+```{r}
+amyloid_df = read_csv("./data/mci_amyloid.csv")
+ names(amyloid_df)
+ str(amyloid_df)
+ dim(amyloid_df)
+ head(amyloid_df)
+ tail(amyloid_df)
+```
 
+## Re-import the amyloid data
+```{r}
+amyloid_df = read_csv(
+  "./data/mci_amyloid.csv",
+  skip = 1,
+  na = c("", "NA", ".","Na")
+)
+ names(amyloid_df)
+ str(amyloid_df)
+ dim(amyloid_df)
+ head(amyloid_df)
+```
 
-
+## use reasonable variable names
+```{r}
+amyloid_df = janitor::clean_names (amyloid_df)
+names(amyloid_df)
+```
 
 
 
